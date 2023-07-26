@@ -1,5 +1,7 @@
 import 'dart:io';
 
+import "package:flutter/foundation.dart";
+
 import "./widgets/attendance_controllers.dart";
 import "./widgets/criteria_slider.dart";
 import "./widgets/joke_container.dart";
@@ -67,19 +69,20 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   void initState() {
     super.initState();
+
+    // code to run at initialization
     () async {
       FirebaseAnalytics.instance.logAppOpen();
       final snapshot = await FirebaseDatabase.instance.ref("links").get();
       if (snapshot.exists) {
-        setState(() {
-          // cause web app is not opening this link. cause we can update the
-          // app from here.
-          if (Platform.isAndroid || Platform.isIOS) {
+        // cause web app is not opening this link.
+        if (Platform.isAndroid || Platform.isIOS) {
+          setState(() {
             updateDownloadLink =
                 (snapshot.value as Map<dynamic, dynamic>)["updateDownloadLink"]
                     .toString();
-          }
-        });
+          });
+        }
       }
     }();
   }
@@ -135,44 +138,82 @@ class _MyHomePageState extends State<MyHomePage> {
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 251, 251, 251),
       appBar: _buildAppBar(),
-      body: ListView(controller: listViewController, children: [
-        Padding(
-          padding: EdgeInsets.only(
-              top: 24,
-              left: calcResponsivePadding(24),
-              right: calcResponsivePadding(24)),
-          child: ResultCard(
-            currentAttendance: currentAttendance,
-            result: result,
-            isAttendanceAboveCriteria: isAttendanceAboveCriteria,
-          ),
-        ),
-        const SizedBox(
-          height: 30,
-        ),
-        // CriteriaSlider's padding is within the widget.
-        // Because of complex padding.
-        CriteriaSlider(
-            criteria: criteria,
-            updateCriteriaFromSlider: updateCriteriaFromSlider),
-        const SizedBox(
-          height: 22,
-        ),
-        Padding(
-          padding: EdgeInsets.symmetric(horizontal: calcResponsivePadding(24)),
-          child: AttendanceFields(
-              presentLectures: presentLectures,
-              totalLectures: totalLectures,
-              updateResult: updateResult,
-              incrementJokeNumber: incrementJokeNumber,
-              listViewController: listViewController),
-        ),
-        Padding(
-          padding: EdgeInsets.symmetric(
-              horizontal: calcResponsivePadding(30, 30), vertical: 40),
-          child: JokeContainer(jokeNumber),
-        )
-      ]),
+      body: kIsWeb && defaultTargetPlatform == TargetPlatform.android
+          ? Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Center(
+                  child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Text(
+                    "Download the Android app!",
+                    style: TextStyle(
+                        fontFamily: "Circular",
+                        fontSize: 22,
+                        fontWeight: FontWeight.bold),
+                  ),
+                  const Text(
+                    "BunkApp is much better as a standalone Android app. You can use it even when you're offline!",
+                    textAlign: TextAlign.center,
+                    style: TextStyle(fontSize: 18),
+                  ),
+                  const SizedBox(
+                    height: 16,
+                  ),
+                  ElevatedButton(
+                    onPressed: () {
+                      launchUrl(
+                          Uri.parse(
+                              "https://www.dropbox.com/sh/d48thk1tc5flqtb/AAAlvTKMiMPS-qosqcddJBuSa?dl=0"),
+                          mode: LaunchMode.externalApplication);
+                    },
+                    style: ElevatedButton.styleFrom(
+                        foregroundColor: Colors.white,
+                        backgroundColor: themeColor),
+                    child: const Text("Download"),
+                  )
+                ],
+              )),
+            )
+          : ListView(controller: listViewController, children: [
+              Padding(
+                padding: EdgeInsets.only(
+                    top: 24,
+                    left: calcResponsivePadding(24),
+                    right: calcResponsivePadding(24)),
+                child: ResultCard(
+                  currentAttendance: currentAttendance,
+                  result: result,
+                  isAttendanceAboveCriteria: isAttendanceAboveCriteria,
+                ),
+              ),
+              const SizedBox(
+                height: 30,
+              ),
+              // CriteriaSlider's padding is within the widget.
+              // Because of complex padding.
+              CriteriaSlider(
+                  criteria: criteria,
+                  updateCriteriaFromSlider: updateCriteriaFromSlider),
+              const SizedBox(
+                height: 22,
+              ),
+              Padding(
+                padding:
+                    EdgeInsets.symmetric(horizontal: calcResponsivePadding(24)),
+                child: AttendanceFields(
+                    presentLectures: presentLectures,
+                    totalLectures: totalLectures,
+                    updateResult: updateResult,
+                    incrementJokeNumber: incrementJokeNumber,
+                    listViewController: listViewController),
+              ),
+              Padding(
+                padding: EdgeInsets.symmetric(
+                    horizontal: calcResponsivePadding(30, 30), vertical: 40),
+                child: JokeContainer(jokeNumber),
+              )
+            ]),
     );
   }
 
