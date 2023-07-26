@@ -1,6 +1,5 @@
-import 'dart:io';
-
 import "package:flutter/foundation.dart";
+import "package:share_plus/share_plus.dart";
 
 import "./widgets/attendance_controllers.dart";
 import "./widgets/criteria_slider.dart";
@@ -64,7 +63,7 @@ class _MyHomePageState extends State<MyHomePage> {
   double result = 0;
 
   // firebase stuff
-  String updateDownloadLink = "";
+  String? updateDownloadLink;
 
   @override
   void initState() {
@@ -75,14 +74,14 @@ class _MyHomePageState extends State<MyHomePage> {
       FirebaseAnalytics.instance.logAppOpen();
       final snapshot = await FirebaseDatabase.instance.ref("links").get();
       if (snapshot.exists) {
-        // cause web app is not opening this link.
-        if (Platform.isAndroid || Platform.isIOS) {
-          setState(() {
-            updateDownloadLink =
-                (snapshot.value as Map<dynamic, dynamic>)["updateDownloadLink"]
-                    .toString();
-          });
-        }
+        setState(() {
+          final fetchedUpdateDownloadLink =
+              (snapshot.value as Map<dynamic, dynamic>)["updateDownloadLink"]
+                  .toString();
+          updateDownloadLink = fetchedUpdateDownloadLink.isNotEmpty
+              ? fetchedUpdateDownloadLink
+              : null;
+        });
       }
     }();
   }
@@ -140,37 +139,42 @@ class _MyHomePageState extends State<MyHomePage> {
       appBar: _buildAppBar(),
       body: kIsWeb && defaultTargetPlatform == TargetPlatform.android
           ? Padding(
-              padding: const EdgeInsets.all(16.0),
+              padding: const EdgeInsets.all(32.0),
               child: Center(
                   child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   const Text(
                     "Download the Android app!",
+                    textAlign: TextAlign.center,
                     style: TextStyle(
                         fontFamily: "Circular",
-                        fontSize: 22,
+                        fontSize: 19,
                         fontWeight: FontWeight.bold),
                   ),
                   const Text(
                     "BunkApp is much better as a standalone Android app. You can use it even when you're offline!",
                     textAlign: TextAlign.center,
-                    style: TextStyle(fontSize: 18),
+                    style: TextStyle(fontSize: 16),
                   ),
                   const SizedBox(
-                    height: 16,
+                    height: 32,
                   ),
                   ElevatedButton(
                     onPressed: () {
                       launchUrl(
-                          Uri.parse(
-                              "https://www.dropbox.com/sh/d48thk1tc5flqtb/AAAlvTKMiMPS-qosqcddJBuSa?dl=0"),
+                          Uri.parse(updateDownloadLink ??
+                              "https://drive.google.com/drive/folders/1W-v_qq717674Tqw1TJrTiMHZzbnA3e9j"),
                           mode: LaunchMode.externalApplication);
                     },
                     style: ElevatedButton.styleFrom(
                         foregroundColor: Colors.white,
-                        backgroundColor: themeColor),
-                    child: const Text("Download"),
+                        backgroundColor: themeColor,
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 40, vertical: 10)),
+                    child: const Text(
+                      "Download",
+                    ),
                   )
                 ],
               )),
@@ -235,10 +239,10 @@ class _MyHomePageState extends State<MyHomePage> {
             fontWeight: FontWeight.w500),
       ),
       actions: [
-        if (updateDownloadLink.isNotEmpty)
+        if (updateDownloadLink != null && updateDownloadLink!.isNotEmpty)
           IconButton(
             onPressed: () {
-              launchUrl(Uri.parse(updateDownloadLink),
+              launchUrl(Uri.parse(updateDownloadLink!),
                   mode: LaunchMode.externalApplication);
             },
             icon: const Icon(
@@ -247,6 +251,19 @@ class _MyHomePageState extends State<MyHomePage> {
               color: Color.fromARGB(255, 245, 245, 245),
             ),
           ),
+        IconButton(
+            onPressed: () {
+              Share.share(
+                  "🔗 Here's the link to download the Android version of the BunkApp:"
+                  "\n\n${updateDownloadLink ?? 'https://drive.google.com/drive/folders/1W-v_qq717674Tqw1TJrTiMHZzbnA3e9j'}"
+                  "\n\nThank you for using BunkApp ✌️",
+                  subject: "Download the BunkApp Android app!");
+            },
+            icon: const Icon(
+              Icons.share_rounded,
+              size: 26,
+              color: Color.fromARGB(255, 245, 245, 245),
+            )),
         IconButton(
           onPressed: () {
             Navigator.of(context).pushNamed(AboutPage.routeName);
@@ -258,7 +275,7 @@ class _MyHomePageState extends State<MyHomePage> {
           ),
         ),
         const SizedBox(
-          width: 8,
+          width: 10,
         )
       ],
     );
