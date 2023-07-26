@@ -149,13 +149,13 @@ class _MyHomePageState extends State<MyHomePage> {
                     textAlign: TextAlign.center,
                     style: TextStyle(
                         fontFamily: "Circular",
-                        fontSize: 19,
+                        fontSize: 22,
                         fontWeight: FontWeight.bold),
                   ),
                   const Text(
                     "BunkApp is much better as a standalone Android app. You can use it even when you're offline!",
                     textAlign: TextAlign.center,
-                    style: TextStyle(fontSize: 16),
+                    style: TextStyle(fontSize: 18),
                   ),
                   const SizedBox(
                     height: 32,
