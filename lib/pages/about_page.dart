@@ -134,7 +134,7 @@ class _AboutPageState extends State<AboutPage> {
                 EdgeInsets.symmetric(horizontal: calcResponsivePadding(20)),
             margin: const EdgeInsets.symmetric(vertical: 32),
             child: const Text(
-              "Version 0.01",
+              "Version 1.1.0",
               textAlign: TextAlign.center,
               style: TextStyle(
                   fontFamily: fontFamily,
