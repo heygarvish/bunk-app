@@ -10,5 +10,5 @@ an attendance manager app.
 you just have to enter "total lectures: total number of classes held" and "present lectures: number of lectures you were present in" and that's it.
 
 ## ⬇️ download link
-- android users: https://drive.google.com/drive/folders/16GXD4kt7NTk03EnZtEPVwCcH5rcZeGz4
+- android users: https://play.google.com/store/apps/details?id=com.heygarvish.bunkapp
 - iphone and web users: https://bunkapp-b216e.web.app/
